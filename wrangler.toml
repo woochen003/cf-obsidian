@@ -1,20 +1,4 @@
 name = "cf-obsidian-pro"
-main = "functions/_init.js"
 compatibility_date = "2026-06-02"
-type = "javascript"
 
-account_id = "YOUR_ACCOUNT_ID"
-project_name = "cf-obsidian-pro"
-workers_dev = true
-
-[vars]
-KV_NAMESPACE = "YOUR_KV_ID"
-D1_DATABASE = "YOUR_D1_ID"
-
-[build]
-command = "bun run build"
-[build.upload]
-format = "service-worker"
-
-[build.upload.rules]
-".*\.js$" = "worker"
+pages_build_output_dir = "public"
