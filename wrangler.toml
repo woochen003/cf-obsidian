@@ -1,10 +1,4 @@
-name = "cf-obsidian-pro"
+name = "cf-obsidian"
 compatibility_date = "2026-06-02"
 
-# 输出目录
 pages_build_output_dir = "public"
-
-[functions]
-directory = "./functions"
-
-# 不再写 KV/D1 ID，使用环境变量
