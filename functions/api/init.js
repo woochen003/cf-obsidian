@@ -1,7 +1,7 @@
 export async function onRequestGet(context) {
   const { env } = context;
 
-  // 自动创建 D1 表
+  // 初始化 D1 数据库表
   await env.DB.exec(`
     CREATE TABLE IF NOT EXISTS notes (
       id TEXT PRIMARY KEY,
