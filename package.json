@@ -1,4 +1,15 @@
 {
   "name": "cf-obsidian-pro",
-  "type": "module"
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild functions/*.js --bundle --outdir=dist --platform=browser"
+  },
+  "dependencies": {
+    "hono": "^4.12.23",
+    "jose": "^6.2.3"
+  },
+  "devDependencies": {
+    "esbuild": "^0.18.21"
+  }
 }
