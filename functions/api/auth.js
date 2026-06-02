@@ -1,45 +1,28 @@
-function base64url(obj) {
-  return btoa(JSON.stringify(obj))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
-}
-
-async function sign(payload, secret) {
-  const header = { alg: "HS256", typ: "JWT" };
-
-  const enc = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    enc.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-
-  const data = `${base64url(header)}.${base64url(payload)}`;
-
-  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(data));
-
-  const signature = btoa(String.fromCharCode(...new Uint8Array(sig)))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
-
-  return `${data}.${signature}`;
-}
-
 export async function onRequestPost({ request, env }) {
-  const { password } = await request.json();
+  try {
+    const body = await request.json();
+    const { password } = body;
 
-  if (password !== env.ADMIN_PASS) {
-    return new Response("fail", { status: 401 });
+    if (!password) {
+      return Response.json({ ok: false, msg: "no password" }, { status: 400 });
+    }
+
+    if (password !== env.ADMIN_PASSWORD) {
+      return Response.json({ ok: false, msg: "wrong password" }, { status: 401 });
+    }
+
+    // 简单 token（不用 jose，避免再炸）
+    const token = btoa(JSON.stringify({
+      role: "admin",
+      t: Date.now()
+    }));
+
+    return Response.json({
+      ok: true,
+      token
+    });
+
+  } catch (e) {
+    return Response.json({ ok: false, error: e.message }, { status: 500 });
   }
-
-  const token = await sign(
-    { role: "admin", t: Date.now() },
-    env.ADMIN_PASS
-  );
-
-  return new Response(JSON.stringify({ token }));
 }
