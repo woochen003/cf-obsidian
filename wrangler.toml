@@ -1,14 +1,16 @@
 name = "cf-obsidian-pro"
 compatibility_date = "2026-06-02"
 
+# 输出目录
+pages_build_output_dir = "public"
+
+# Functions 绑定
 [bindings]
 type = "d1_database"
 name = "DB"
 database_name = "notes-db"
-id = "YOUR_D1_ID"
+# 在 Pages UI 绑定 D1 后不需要填写 ID
 
 [[kv_namespaces]]
 binding = "FILES"
-id = "YOUR_KV_ID"
-
-pages_build_output_dir = "public"
+# 在 Pages UI 绑定 KV 后不需要填写 ID
