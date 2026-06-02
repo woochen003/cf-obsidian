@@ -1,18 +1,45 @@
-import { SignJWT, jwtVerify } from 'jose';
+function base64url(obj) {
+  return btoa(JSON.stringify(obj))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
+}
 
-export async function onRequestPost(context) {
-  const { request, env } = context;
+async function sign(payload, secret) {
+  const header = { alg: "HS256", typ: "JWT" };
+
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  const data = `${base64url(header)}.${base64url(payload)}`;
+
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode(data));
+
+  const signature = btoa(String.fromCharCode(...new Uint8Array(sig)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=/g, "");
+
+  return `${data}.${signature}`;
+}
+
+export async function onRequestPost({ request, env }) {
   const { password } = await request.json();
 
   if (password !== env.ADMIN_PASS) {
-    return new Response(JSON.stringify({ error: '密码错误' }), { status: 401 });
+    return new Response("fail", { status: 401 });
   }
 
-  const jwt = await new SignJWT({ role: 'admin' })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('2h')
-    .sign(new TextEncoder().encode(env.ADMIN_PASS));
+  const token = await sign(
+    { role: "admin", t: Date.now() },
+    env.ADMIN_PASS
+  );
 
-  return new Response(JSON.stringify({ token: jwt }), { status: 200 });
+  return new Response(JSON.stringify({ token }));
 }
