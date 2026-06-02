@@ -1,4 +1,14 @@
 name = "cf-obsidian-pro"
 compatibility_date = "2026-06-02"
 
+[bindings]
+type = "d1_database"
+name = "DB"
+database_name = "notes-db"
+id = "YOUR_D1_ID"
+
+[[kv_namespaces]]
+binding = "FILES"
+id = "YOUR_KV_ID"
+
 pages_build_output_dir = "public"
