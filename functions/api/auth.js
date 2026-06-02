@@ -1,19 +1,18 @@
-function sign(data) { return btoa(JSON.stringify(data)); }
-function verify(token) { return JSON.parse(atob(token)); }
+import { SignJWT, jwtVerify } from 'jose';
 
-export async function onRequestPost({ request, env }) {
-  const { username, password } = await request.json();
-  const user = await env.DB.prepare(
-    "SELECT * FROM users WHERE username=?"
-  ).bind(username).first();
+export async function onRequestPost(context) {
+  const { request, env } = context;
+  const { password } = await request.json();
 
-  if (!user || user.password !== password) return Response.json({ ok: false }, { status: 401 });
+  if (password !== env.ADMIN_PASS) {
+    return new Response(JSON.stringify({ error: '密码错误' }), { status: 401 });
+  }
 
-  return Response.json({ ok: true, token: sign({ uid: user.id, username }) });
-}
+  const jwt = await new SignJWT({ role: 'admin' })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('2h')
+    .sign(new TextEncoder().encode(env.ADMIN_PASS));
 
-export async function onRequestGet({ request }) {
-  const token = request.headers.get("Authorization")?.split(" ")[1];
-  if (!token) return Response.json({ ok: false }, { status: 401 });
-  return Response.json({ ok: true, user: verify(token) });
+  return new Response(JSON.stringify({ token: jwt }), { status: 200 });
 }
