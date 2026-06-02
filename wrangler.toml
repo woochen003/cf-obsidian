@@ -4,13 +4,7 @@ compatibility_date = "2026-06-02"
 # 输出目录
 pages_build_output_dir = "public"
 
-# Functions 绑定
-[bindings]
-type = "d1_database"
-name = "DB"
-database_name = "notes-db"
-# 在 Pages UI 绑定 D1 后不需要填写 ID
+[functions]
+directory = "./functions"
 
-[[kv_namespaces]]
-binding = "FILES"
-# 在 Pages UI 绑定 KV 后不需要填写 ID
+# 不再写 KV/D1 ID，使用环境变量
