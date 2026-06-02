@@ -1,26 +1,19 @@
-export async function onRequestGet({ env }) {
+export async function onRequestGet(context) {
+  const { env } = context;
+
+  // 自动创建 D1 表
   await env.DB.exec(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT UNIQUE,
-      password TEXT
-    );
-    CREATE TABLE IF NOT EXISTS folders (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT
-    );
-    CREATE TABLE IF NOT EXISTS files (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      folder_id INTEGER,
-      name TEXT,
-      kv_key TEXT,
-      deleted INTEGER DEFAULT 0
-    );
+    CREATE TABLE IF NOT EXISTS notes (
+      id TEXT PRIMARY KEY,
+      folder TEXT,
+      content TEXT,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
   `);
 
-  await env.DB.prepare(
-    "INSERT OR IGNORE INTO users(username,password) VALUES('admin','123456')"
-  ).run();
+  // 初始化 KV 根目录
+  const root = await env.FILES.get("root");
+  if (!root) await env.FILES.put("root", JSON.stringify({ folders: [], files: [] }));
 
-  return Response.json({ ok: true, message: "init done" });
+  return new Response("KV/D1 初始化完成", { status: 200 });
 }
