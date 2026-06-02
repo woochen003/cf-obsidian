@@ -3,14 +3,13 @@ let currentFile = null;
 async function loadTree() {
   const res = await fetch('/api/tree');
   const data = await res.json();
-
   const treeEl = document.getElementById('tree');
   treeEl.innerHTML = '';
 
   data.folders.forEach(folder => {
-    const folderEl = document.createElement('div');
-    folderEl.textContent = folder.name;
-    treeEl.appendChild(folderEl);
+    const fEl = document.createElement('div');
+    fEl.textContent = folder.name;
+    treeEl.appendChild(fEl);
 
     data.files.filter(f => f.folder_id === folder.id).forEach(file => {
       const fileEl = document.createElement('div');
@@ -28,7 +27,7 @@ async function loadTree() {
 
 async function save() {
   if(!currentFile) return;
-  await fetch(`/api/file`, {
+  await fetch('/api/file', {
     method: 'PUT',
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id: currentFile.id, content: document.getElementById('text').value })
